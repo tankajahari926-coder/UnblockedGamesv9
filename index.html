@@ -1,67 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unblocked Games Hub</title>
+    <title>Unblocked Games v9</title>
     <style>
-        body { font-family: sans-serif; background: #111; color: #fff; margin: 0; text-align: center; }
-        nav { background: #222; padding: 15px; border-bottom: 2px solid #007bff; display: flex; justify-content: space-between; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
-        .card { background: #333; padding: 10px; border-radius: 8px; cursor: pointer; border: 1px solid #444; }
-        .card:hover { border-color: #007bff; }
-        .card img { width: 100%; border-radius: 5px; height: 120px; object-fit: cover; }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+        .game { border: 2px solid #444; padding: 10px; cursor: pointer; border-radius: 10px; width: 200px; }
+        .game:hover { border-color: #007bff; }
         #player { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; }
-        iframe { flex-grow: 1; border: none; }
-        button { padding: 10px; background: red; color: white; border: none; cursor: pointer; font-weight: bold; }
+        iframe { width: 100%; height: 100%; border: none; }
+        button { background: red; color: white; padding: 15px; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <nav>
-        <span style="font-size:20px; font-weight:bold;">UnblockedGamesV9</span>
-        <input type="text" id="search" placeholder="Search..." onkeyup="search()" style="padding:5px; border-radius:5px;">
-    </nav>
-
-    <div class="grid" id="grid"></div>
-
+    <h1>Unblocked Games v9</h1>
+    <div class="grid" id="g"></div>
     <div id="player">
-        <button onclick="closeGame()">CLOSE GAME [X]</button>
-        <iframe id="frame"></iframe>
+        <button onclick="location.reload()">CLOSE GAME</button>
+        <iframe id="f"></iframe>
     </div>
-
     <script>
-        const games = [
-            { "t": "Slope", "i": "https://via.placeholder.com/200x120?text=Slope", "u": "https://way66.github.io/slope/" },
-            { "t": "Retro Bowl", "i": "https://via.placeholder.com/200x120?text=Retro+Bowl", "u": "https://game316024.konggames.com/gameproviderv2/v1/index.html" },
-            { "t": "1v1 LOL", "i": "https://via.placeholder.com/200x120?text=1v1.LOL", "u": "https://1v1.lol/" }
+        const data = [
+            {t:"Slope", u:"https://way66.github.io/slope/"},
+            {t:"Retro Bowl", u:"https://game316024.konggames.com/gameproviderv2/v1/index.html"},
+            {t:"1v1 LOL", u:"https://1v1.lol/"}
         ];
-
-        function render(list) {
-            const g = document.getElementById('grid');
-            g.innerHTML = '';
-            list.forEach(game => {
-                const d = document.createElement('div');
-                d.className = 'card';
-                d.innerHTML = `<img src="${game.i}"><p>${game.t}</p>`;
-                d.onclick = () => {
-                    document.getElementById('frame').src = game.u;
-                    document.getElementById('player').style.display = 'flex';
-                };
-                g.appendChild(d);
-            });
-        }
-
-        function closeGame() {
-            document.getElementById('player').style.display = 'none';
-            document.getElementById('frame').src = '';
-        }
-
-        function search() {
-            const q = document.getElementById('search').value.toLowerCase();
-            render(games.filter(x => x.t.toLowerCase().includes(q)));
-        }
-
-        render(games);
+        const grid = document.getElementById('g');
+        data.forEach(game => {
+            const div = document.createElement('div');
+            div.className = 'game';
+            div.innerHTML = `<h3>${game.t}</h3>`;
+            div.onclick = () => {
+                document.getElementById('f').src = game.u;
+                document.getElementById('player').style.display = 'flex';
+            };
+            grid.appendChild(div);
+        });
     </script>
 </body>
 </html>
