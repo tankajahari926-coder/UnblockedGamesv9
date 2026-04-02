@@ -5,261 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unblocked Games Hub</title>
     <style>
-        /* CSS STYLES */
-        :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --text-color: #ffffff;
-            --accent-color: #3498db;
-            --danger-color: #e74c3c;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        /* Navigation */
-        nav {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background-color: #000;
-            border-bottom: 2px solid var(--accent-color);
-        }
-
-        nav h1 {
-            margin: 0;
-            font-size: 24px;
-            letter-spacing: 1px;
-        }
-
-        #searchBar {
-            padding: 10px 15px;
-            width: 300px;
-            border-radius: 20px;
-            border: none;
-            outline: none;
-            background: #222;
-            color: white;
-            font-size: 16px;
-        }
-
-        /* Game Grid */
-        .container {
-            padding: 30px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 25px;
-        }
-
-        .game-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            border: 1px solid #333;
-        }
-
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            border-color: var(--accent-color);
-        }
-
-        .game-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-bottom: 1px solid #333;
-        }
-
-        .game-card h3 {
-            margin: 0;
-            padding: 15px;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        /* Fullscreen Player Overlay */
-        #gameContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            display: none; /* Hidden by default */
-            flex-direction: column;
-        }
-
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: #111;
-        }
-
-        .close-btn {
-            background: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-
-        .iframe-wrapper {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        #gameFrame {
-            width: 100%;
-            height: 100%;
-            max-width: 1200px;
-            border: 2px solid #333;
-            background: #000;
-        }
-
-        .hidden { display: none; }
+        body { font-family: sans-serif; background: #111; color: #fff; margin: 0; text-align: center; }
+        nav { background: #222; padding: 15px; border-bottom: 2px solid #007bff; display: flex; justify-content: space-between; align-items: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
+        .card { background: #333; padding: 10px; border-radius: 8px; cursor: pointer; border: 1px solid #444; }
+        .card:hover { border-color: #007bff; }
+        .card img { width: 100%; border-radius: 5px; height: 120px; object-fit: cover; }
+        #player { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; }
+        iframe { flex-grow: 1; border: none; }
+        button { padding: 10px; background: red; color: white; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <nav>
-        <h1>UNBLOCKED GAMES</h1>
-        <input type="text" id="searchBar" placeholder="Search for a game..." onkeyup="filterGames()">
+        <span style="font-size:20px; font-weight:bold;">UnblockedGamesV9</span>
+        <input type="text" id="search" placeholder="Search..." onkeyup="search()" style="padding:5px; border-radius:5px;">
     </nav>
 
-    <div class="container">
-        <div id="gameGrid" class="grid">
-            <!-- Games will appear here -->
-        </div>
-    </div>
+    <div class="grid" id="grid"></div>
 
-    <!-- The Game Player Overlay -->
-    <div id="gameContainer">
-        <div class="player-header">
-            <h2 id="currentGameTitle" style="margin:0; font-size: 18px;">Game Name</h2>
-            <button class="close-btn" onclick="closeGame()">CLOSE GAME [X]</button>
-        </div>
-        <div class="iframe-wrapper">
-            <iframe id="gameFrame" src="" frameborder="0" allowfullscreen></iframe>
-        </div>
+    <div id="player">
+        <button onclick="closeGame()">CLOSE GAME [X]</button>
+        <iframe id="frame"></iframe>
     </div>
 
     <script>
-        /* JAVASCRIPT LOGIC */
-
-        // 1. YOUR GAME DATABASE (The "JSON" data)
-        // Add new games by adding objects to this list
-        const gamesData = [
-            {
-                "title": "Slope",
-                "thumbnail": "https://images.crazygames.com/slope/20210211132211/slope-cover?auto=format,compress&q=75&cs=strip&ch=DPR&w=1200&h=630&fit=crop",
-                "url": "https://way66.github.io/slope/"
-            },
-            {
-                "title": "Retro Bowl",
-                "thumbnail": "https://play-lh.googleusercontent.com/9n9_fO672X2I7S5T2_D7oXWJ-X6T9X4Uv8L9Z_Y0U",
-                "url": "https://game316024.konggames.com/gameproviderv2/v1/index.html"
-            },
-            {
-                "title": "Minecraft Classic",
-                "thumbnail": "https://assets.nintendo.com/image/upload/ar_16:9,c_lpad,w_1240/b_white/f_auto/q_auto/v1/ncom/en_US/games/switch/m/minecraft-switch/hero",
-                "url": "https://classic.minecraft.net/"
-            },
-            {
-                "title": "1v1.LOL",
-                "thumbnail": "https://play-lh.googleusercontent.com/yO-p5G9X3-K3R4A",
-                "url": "https://1v1.lol/"
-            },
-            {
-                "title": "Tunnel Rush",
-                "thumbnail": "https://images.crazygames.com/games/tunnel-rush/cover-1583331525656.png",
-                "url": "https://tunnelrush.github.io/"
-            }
+        const games = [
+            { "t": "Slope", "i": "https://via.placeholder.com/200x120?text=Slope", "u": "https://way66.github.io/slope/" },
+            { "t": "Retro Bowl", "i": "https://via.placeholder.com/200x120?text=Retro+Bowl", "u": "https://game316024.konggames.com/gameproviderv2/v1/index.html" },
+            { "t": "1v1 LOL", "i": "https://via.placeholder.com/200x120?text=1v1.LOL", "u": "https://1v1.lol/" }
         ];
 
-        // 2. Function to load/render games into the grid
-        function displayGames(games) {
-            const grid = document.getElementById('gameGrid');
-            grid.innerHTML = ''; // Clear existing items
-
-            if (games.length === 0) {
-                grid.innerHTML = '<p style="text-align:center; width:100%;">No games found matching your search.</p>';
-                return;
-            }
-
-            games.forEach(game => {
-                const card = document.createElement('div');
-                card.className = 'game-card';
-                card.innerHTML = `
-                    <img src="${game.thumbnail}" alt="${game.title}" onerror="this.src='https://via.placeholder.com/200x150?text=No+Image'">
-                    <h3>${game.title}</h3>
-                `;
-                
-                // When clicked, open the game
-                card.onclick = function() {
-                    openGame(game.url, game.title);
+        function render(list) {
+            const g = document.getElementById('grid');
+            g.innerHTML = '';
+            list.forEach(game => {
+                const d = document.createElement('div');
+                d.className = 'card';
+                d.innerHTML = `<img src="${game.i}"><p>${game.t}</p>`;
+                d.onclick = () => {
+                    document.getElementById('frame').src = game.u;
+                    document.getElementById('player').style.display = 'flex';
                 };
-                
-                grid.appendChild(card);
+                g.appendChild(d);
             });
         }
 
-        // 3. Search Bar Functionality
-        function filterGames() {
-            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
-            const filtered = gamesData.filter(game => 
-                game.title.toLowerCase().includes(searchTerm)
-            );
-            displayGames(filtered);
-        }
-
-        // 4. Open Game Player
-        function openGame(url, title) {
-            const container = document.getElementById('gameContainer');
-            const frame = document.getElementById('gameFrame');
-            const titleElement = document.getElementById('currentGameTitle');
-
-            frame.src = url; // Set the iframe source to the game URL
-            titleElement.innerText = title;
-            container.style.display = 'flex'; // Show the overlay
-            document.body.style.overflow = 'hidden'; // Stop the background from scrolling
-        }
-
-        // 5. Close Game Player
         function closeGame() {
-            const container = document.getElementById('gameContainer');
-            const frame = document.getElementById('gameFrame');
-            
-            frame.src = ''; // Stop the game process/sound
-            container.style.display = 'none'; // Hide overlay
-            document.body.style.overflow = 'auto'; // Enable scrolling again
+            document.getElementById('player').style.display = 'none';
+            document.getElementById('frame').src = '';
         }
 
-        // Initialize the site with all games on startup
-        window.onload = function() {
-            displayGames(gamesData);
-        };
+        function search() {
+            const q = document.getElementById('search').value.toLowerCase();
+            render(games.filter(x => x.t.toLowerCase().includes(q)));
+        }
+
+        render(games);
     </script>
 </body>
 </html>
